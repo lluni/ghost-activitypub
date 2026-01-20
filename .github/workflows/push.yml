@@ -57,16 +57,16 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Push ActivityPub Docker image to private registry
+      - name: Push ActivityPub Docker image to public registry
         run: |
           docker load < /tmp/activitypub-amd64.tar
-          echo "${{ inputs.activitypub-private-tags }}" | while read -r tag; do
+          echo "${{ inputs.activitypub-public-tags }}" | while read -r tag; do
             docker push $tag
           done
 
-      - name: Push Migrations Docker image to private registry
+      - name: Push Migrations Docker image to public registry
         run: |
           docker load < /tmp/activitypub-migrations-amd64.tar
-          echo "${{ inputs.activitypub-migrations-private-tags }}" | while read -r tag; do
+          echo "${{ inputs.activitypub-migrations-public-tags }}" | while read -r tag; do
             docker push $tag
           done
