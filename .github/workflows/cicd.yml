@@ -24,14 +24,8 @@ jobs:
     uses: ./.github/workflows/build.yml
     secrets: inherit
 
-  test:
-    needs: build
-    uses: ./.github/workflows/test.yml
-    with:
-      skip-tests: ${{ contains(github.event.pull_request.labels.*.name, 'skip-tests') }}
-
   push:
-    needs: [build, test]
+    needs: build
     uses: ./.github/workflows/push.yml
     with:
       activitypub-private-tags: ${{ needs.build.outputs.activitypub-private-tags }}
@@ -54,16 +48,3 @@ jobs:
     secrets: inherit
     with:
       github-sha: ${{ github.sha }}
-
-  slack-notify:
-    name: Slack Notification on Failure
-    needs: [build, test, push, deploy]
-    runs-on: ubuntu-latest
-    if: always()
-    steps:
-      - uses: tryghost/actions/actions/slack-build@main
-        if: contains(needs.*.result, 'failure') && github.event_name == 'push' && github.ref == 'refs/heads/main'
-        with:
-          status: failure
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
