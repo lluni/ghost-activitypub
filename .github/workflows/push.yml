@@ -64,10 +64,20 @@ jobs:
             docker tag europe-docker.pkg.dev/ghost-activitypub/activitypub/activitypub:edge $tag
             docker push $tag
           done
+          docker load < /tmp/activitypub-arm64.tar
+          echo "${{ inputs.activitypub-public-tags }}" | while read -r tag; do
+            docker tag europe-docker.pkg.dev/ghost-activitypub/activitypub/activitypub:edge $tag
+            docker push $tag
+          done
 
       - name: Push Migrations Docker image to public registry
         run: |
           docker load < /tmp/activitypub-migrations-amd64.tar
+          echo "${{ inputs.activitypub-migrations-public-tags }}" | while read -r tag; do
+            docker tag europe-docker.pkg.dev/ghost-activitypub/activitypub/migrations:edge $tag
+            docker push $tag
+          done
+          docker load < /tmp/activitypub-migrations-arm64.tar
           echo "${{ inputs.activitypub-migrations-public-tags }}" | while read -r tag; do
             docker tag europe-docker.pkg.dev/ghost-activitypub/activitypub/migrations:edge $tag
             docker push $tag
