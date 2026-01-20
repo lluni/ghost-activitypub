@@ -101,7 +101,7 @@ jobs:
           images: |
             europe-docker.pkg.dev/ghost-activitypub/activitypub/activitypub
           tags: |
-            ${{ github.ref == 'refs/heads/main' && 'type=edge,branch=main' || '' }}
+            type=edge
             ${{ github.event_name == 'pull_request' && format('type=raw,value=pr-{0}', github.event.pull_request.number) || '' }}
             type=raw,value=${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha  }}
             type=semver,pattern={{version}}
