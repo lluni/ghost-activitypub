@@ -34,17 +34,3 @@ jobs:
       activitypub-migrations-private-tags: ${{ needs.build.outputs.activitypub-migrations-private-tags }}
       activitypub-migrations-public-tags: ${{ needs.build.outputs.activitypub-migrations-public-tags }}
       activitypub-migrations-public-labels: ${{ needs.build.outputs.activitypub-migrations-public-labels }}
-
-  deploy-pr:
-    needs: push
-    if: github.event_name == 'pull_request'
-    uses: ./.github/workflows/deploy-pr.yml
-    secrets: inherit
-
-  deploy:
-    needs: push
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    uses: ./.github/workflows/deploy.yml
-    secrets: inherit
-    with:
-      github-sha: ${{ github.sha }}
