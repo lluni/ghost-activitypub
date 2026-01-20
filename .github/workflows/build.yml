@@ -192,7 +192,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: migrate
-          file: Dockerfile_${{ matrix.platform_slug }}
+          file: migrate/Dockerfile_${{ matrix.platform_slug }}
           load: true
           platforms: ${{ matrix.platform }}
           tags: ${{ steps.activitypub-migrations-docker-metadata-private.outputs.tags }}
