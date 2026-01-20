@@ -76,13 +76,8 @@ jobs:
       - name: Check if we should build this platform
         id: should-build
         run: |
-          if [[ "${{ matrix.platform }}" == "linux/arm64" ]] && [[ ! "${{ github.ref }}" =~ ^refs/tags/ ]]; then
-            echo "skip=true" >> $GITHUB_OUTPUT
-            echo "Skipping arm64 build for non-tagged release"
-          else
-            echo "skip=false" >> $GITHUB_OUTPUT
-            echo "Building for platform ${{ matrix.platform }}"
-          fi
+          echo "skip=false" >> $GITHUB_OUTPUT
+          echo "Building for platform ${{ matrix.platform }}"
 
       - name: Checkout
         if: steps.should-build.outputs.skip != 'true'
@@ -127,7 +122,7 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: |
-            ghcr.io/tryghost/activitypub
+            ghcr.io/lluni/ghost-activitypub
           tags: |
             type=edge,branch=main
             type=semver,pattern={{version}}
@@ -164,7 +159,7 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: |
-            ghcr.io/tryghost/activitypub-migrations
+            ghcr.io/lluni/ghost-activitypub-migrations
           tags: |
             type=edge,branch=main
             type=semver,pattern={{version}}
@@ -205,7 +200,7 @@ jobs:
           outputs: type=docker,dest=/tmp/activitypub-migrations-${{ matrix.platform_slug }}.tar
 
       - name: Upload ActivityPub image artifact
-        if: steps.should-build.outputs.skip != 'true' && matrix.platform == 'linux/amd64'
+        if: steps.should-build.outputs.skip != 'true'
         uses: actions/upload-artifact@v4
         with:
           name: activitypub-${{ matrix.platform_slug }}
@@ -213,64 +208,9 @@ jobs:
           retention-days: 1
 
       - name: Upload Migrations image artifact
-        if: steps.should-build.outputs.skip != 'true' && matrix.platform == 'linux/amd64'
+        if: steps.should-build.outputs.skip != 'true'
         uses: actions/upload-artifact@v4
         with:
           name: activitypub-migrations-${{ matrix.platform_slug }}
           path: /tmp/activitypub-migrations-${{ matrix.platform_slug }}.tar
           retention-days: 1
-
-  build-reconcile-account-topics-job:
-    name: Build Reconcile Account Topics Job
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Check for changes in reconcile account topics job
-        id: changes
-        uses: dorny/paths-filter@v3
-        with:
-          filters: |
-            reconcile-account-topics:
-              - 'jobs/reconcile-account-topics/**'
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Docker metadata
-        if: steps.changes.outputs.reconcile-account-topics == 'true'
-        id: reconcile-account-topics-meta
-        uses: docker/metadata-action@v5
-        with:
-          images: europe-docker.pkg.dev/ghost-activitypub/activitypub/reconcile-account-topics
-          tags: |
-            type=sha
-            type=edge,branch=main
-
-      - name: Authenticate with GCP
-        if: steps.changes.outputs.reconcile-account-topics == 'true'
-        uses: google-github-actions/auth@v2
-        id: gcp-auth
-        with:
-          token_format: access_token
-          workload_identity_provider: projects/687476608778/locations/global/workloadIdentityPools/github-oidc-activitypub/providers/github-provider-activitypub
-          service_account: prd-activitypub-terraform-cicd@ghost-activitypub.iam.gserviceaccount.com
-
-      - name: Login to GCP Artifact Registry
-        if: steps.changes.outputs.reconcile-account-topics == 'true'
-        uses: docker/login-action@v3
-        with:
-          registry: europe-docker.pkg.dev
-          username: oauth2accesstoken
-          password: ${{ steps.gcp-auth.outputs.access_token }}
-
-      - name: Build reconcile account topics job image
-        if: steps.changes.outputs.reconcile-account-topics == 'true'
-        uses: docker/build-push-action@v6
-        with:
-          context: jobs/reconcile-account-topics
-          load: true
-          tags: ${{ steps.reconcile-account-topics-meta.outputs.tags }}
-          push: true
