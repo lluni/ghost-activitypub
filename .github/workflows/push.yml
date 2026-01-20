@@ -61,6 +61,7 @@ jobs:
         run: |
           docker load < /tmp/activitypub-amd64.tar
           echo "${{ inputs.activitypub-public-tags }}" | while read -r tag; do
+            docker tag europe-docker.pkg.dev/ghost-activitypub/activitypub/activitypub:edge $tag
             docker push $tag
           done
 
@@ -68,5 +69,6 @@ jobs:
         run: |
           docker load < /tmp/activitypub-migrations-amd64.tar
           echo "${{ inputs.activitypub-migrations-public-tags }}" | while read -r tag; do
+            docker tag europe-docker.pkg.dev/ghost-activitypub/activitypub/migrations:edge $tag
             docker push $tag
           done
