@@ -37,16 +37,28 @@ jobs:
     name: Push Docker Images
     runs-on: ubuntu-latest
     steps:
-      - name: Download ActivityPub image
+      - name: Download ActivityPub amd64 image
         uses: actions/download-artifact@v4
         with:
           name: activitypub-amd64
           path: /tmp
 
-      - name: Download Migrations image
+      - name: Download ActivityPub arm64 image
+        uses: actions/download-artifact@v4
+        with:
+          name: activitypub-arm64
+          path: /tmp
+
+      - name: Download Migrations amd64 image
         uses: actions/download-artifact@v4
         with:
           name: activitypub-migrations-amd64
+          path: /tmp
+
+      - name: Download Migrations arm64 image
+        uses: actions/download-artifact@v4
+        with:
+          name: activitypub-migrations-arm64
           path: /tmp
 
       - name: Login to GitHub Container Registry"
